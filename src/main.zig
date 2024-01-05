@@ -43,6 +43,7 @@ const Board = struct
     {
         const state = self.BoardState;
         
+        // Board layout:
         // 0 1 2
         // 3 4 5
         // 6 7 8
@@ -112,7 +113,7 @@ const Board = struct
     
     const MinimaxReturn = struct{score: i16, move: u8};
     
-    fn findBestMoveMinimax(board: Board) MinimaxReturn
+    fn findBestMoveMinimax(board: Board) MinimaxReturn //standard Minimax
     {
         if (board.checkForDraw()) return MinimaxReturn{.score = 0, .move = 0};
         const currentWinner = board.checkForWinner();
@@ -125,13 +126,13 @@ const Board = struct
                 Player.NoPlayer => unreachable
             };
         
+        //game not over
+        
         const currentPlayer = board.playerToMoveNext();
-        
         var returnValues: [9]?MinimaxReturn = [_]?MinimaxReturn{null} ** 9;
-        
         var boardCopy = board;
         
-        for (0..9) |i|
+        for (0..9) |i| //loop through every move, discard impossible moves
         {
             if (board.BoardState[i] == Player.NoPlayer)
             {
@@ -144,24 +145,23 @@ const Board = struct
         const evalMultiplier: i16 = if(currentPlayer == Player.PlayerX) 1 else -1;
         
         var bestScore: i16 = -1024;
-        var bestReturn: MinimaxReturn = undefined;
         var bestReturnIndex: u8 = undefined;
         
-        for(returnValues, 0..) |possibleNullValue, i|
+        for(returnValues, 0..) |possibleNullValue, i| //loop through every possible move, select most favorable for current player
             if (possibleNullValue) |value|
             {
                 if(value.score * evalMultiplier > bestScore)
                 {
                     bestScore = value.score * evalMultiplier;
-                    bestReturn = value;
                     bestReturnIndex = @intCast(i);
                 }
             };
         
-        bestReturn.score >>= 1;
-        bestReturn.move = bestReturnIndex;
-        
-        return bestReturn;
+        return MinimaxReturn
+        {
+            .score = returnValues[bestReturnIndex].?.score >> 1, //reduce score to select fastest winning move
+            .move = bestReturnIndex
+        };
     }
 };
 
@@ -176,6 +176,7 @@ pub fn main() !void
         try stdout.print("Player to move: {c}\n", .{@intFromEnum(board.playerToMoveNext())});
         
         if(board.playerToMoveNext() == Board.Player.PlayerO) //Automate player O
+        //if(board.playerToMoveNext() == Board.Player.PlayerX) //Automate player X
         {
             const ret = board.findBestMoveMinimax();
             try board.move(ret.move);
@@ -200,7 +201,7 @@ pub fn main() !void
             
             board.move(fieldIndex) catch continue;
             
-            break;
+            break; //Input in correct format
         }
     }
     
