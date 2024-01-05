@@ -175,8 +175,10 @@ pub fn main() !void
         
         try stdout.print("Player to move: {c}\n", .{@intFromEnum(board.playerToMoveNext())});
         
-        if(board.playerToMoveNext() == Board.Player.PlayerO) //Automate player O
-        //if(board.playerToMoveNext() == Board.Player.PlayerX) //Automate player X
+        if (board.playerToMoveNext() == Board.Player.PlayerO) //Automate player O
+        //if (board.playerToMoveNext() == Board.Player.PlayerX) //Automate player X
+        //if (true) //Bot vs. Bot
+        //if (false) //Human vs. Human
         {
             const ret = board.findBestMoveMinimax();
             try board.move(ret.move);
